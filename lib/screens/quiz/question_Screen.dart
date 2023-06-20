@@ -1,23 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:quick_quiz/screens/question_add_screen.dart';
+import 'package:quick_quiz/screens/quiz/question_add_screen.dart';
 
 import 'result_screen.dart';
 
 class QuestionScreen extends StatelessWidget {
-  const QuestionScreen({super.key, required this.categoryId});
+  const QuestionScreen(
+      {super.key, required this.title, required this.categoryId});
 
+  final String title;
   final String categoryId;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> answerSet = {};
     List<QueryDocumentSnapshot> docs = [];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Question'),
+        title: Text(title),
       ),
 
       // add category
@@ -39,7 +40,7 @@ class QuestionScreen extends StatelessWidget {
               .collection('quiz')
               .doc(categoryId)
               .collection('questions')
-              .orderBy('no')
+              .orderBy('questionNo')
               .snapshots(),
           builder: (context, snapshot) {
             //if not exist
@@ -70,17 +71,12 @@ class QuestionScreen extends StatelessWidget {
                         const SizedBox(height: 16),
                     itemCount: docs.length,
                     itemBuilder: (context, index) {
-                      Map<String, dynamic> options = docs[index].get('options');
-
                       //
                       return Stack(
                         alignment: Alignment.topRight,
                         children: [
                           //
-                          QuizCard(
-                            docs: docs[index],
-                            answerSet: answerSet,
-                          ),
+                          QuizCard(docs: docs[index]),
 
                           //delete
                           IconButton(
@@ -104,12 +100,11 @@ class QuestionScreen extends StatelessWidget {
                     margin: const EdgeInsets.only(top: 32, bottom: 8),
                     child: ElevatedButton(
                         onPressed: () {
-                          print(answerSet);
                           Navigator.push(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => ResultScreen(
-                                        answerSet: answerSet,
+                                        answerSet: {},
                                         docs: docs,
                                       )));
                         },
@@ -123,15 +118,21 @@ class QuestionScreen extends StatelessWidget {
   }
 }
 
-class QuizCard extends StatelessWidget {
-  const QuizCard({super.key, required this.docs, required this.answerSet});
-
+class QuizCard extends StatefulWidget {
+  const QuizCard({super.key, required this.docs});
   final QueryDocumentSnapshot docs;
-  final Map<String, dynamic> answerSet;
+
+  @override
+  State<QuizCard> createState() => _QuizCardState();
+}
+
+class _QuizCardState extends State<QuizCard> {
+  String? selected = '';
+  int total = 0;
 
   @override
   Widget build(BuildContext context) {
-    Map<String, dynamic> options = docs.get('options');
+    List<dynamic> options = widget.docs.get('options');
 
     return Card(
       margin: EdgeInsets.zero,
@@ -149,7 +150,7 @@ class QuizCard extends StatelessWidget {
           children: [
             // title, total ques
             Text(
-              '${docs.get('no')}. ${docs.get('question')}',
+              '${widget.docs.get('questionNo')}. ${widget.docs.get('question')}',
               style: Theme.of(context).textTheme.titleMedium!.copyWith(
                     fontWeight: FontWeight.bold,
                     // letterSpacing: .5,
@@ -159,80 +160,38 @@ class QuizCard extends StatelessWidget {
             const SizedBox(height: 8),
 
             // options
-            ListView(
-              shrinkWrap: true,
+            ListView.separated(
+              itemCount: options.length,
               physics: const NeverScrollableScrollPhysics(),
-              children: options.keys
-                  .map(
-                    (String key) => Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: SelectedOptionCard(
-                        docs: docs,
-                        answerSet: answerSet,
-                        options: options,
-                        optionKey: key,
-                      ),
-                    ),
-                  )
-                  .toList(),
+              shrinkWrap: true,
+              separatorBuilder: (context, index) => const SizedBox(height: 8),
+              itemBuilder: (context, index) => RadioListTile<String>(
+                title: Text(
+                  options[index],
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                ),
+                value: options[index],
+                groupValue: selected,
+                onChanged: (value) {
+                  // print(value);
+                  setState(() {
+                    selected = value;
+
+                    if (widget.docs.get('correctAnswer') + 1 ==
+                        options.indexOf(options[index])) {
+                      total += total;
+                      print(total);
+                    }
+                  });
+                },
+                visualDensity: const VisualDensity(vertical: -3),
+                dense: true,
+              ),
             )
           ],
         ),
-      ),
-    );
-  }
-}
-
-class SelectedOptionCard extends StatefulWidget {
-  const SelectedOptionCard(
-      {super.key,
-      required this.docs,
-      required this.answerSet,
-      required this.options,
-      required this.optionKey});
-
-  final QueryDocumentSnapshot docs;
-  final Map<String, dynamic> answerSet;
-  final Map<String, dynamic> options;
-  final String optionKey;
-
-  @override
-  State<SelectedOptionCard> createState() => _SelectedOptionCardState();
-}
-
-class _SelectedOptionCardState extends State<SelectedOptionCard> {
-  bool _isSelected = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        print(widget.options);
-        if (widget.options.containsKey(widget.optionKey)) {
-          setState(() {
-            _isSelected = !_isSelected;
-          });
-
-          // remove if already exist
-          widget.answerSet.remove(widget.docs.get('no'));
-
-          // add
-          widget.answerSet.putIfAbsent(
-              widget.docs.get('no').toString(), () => widget.optionKey);
-
-          print(widget.answerSet);
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 10),
-        decoration: BoxDecoration(
-          color: _isSelected ? Colors.green.shade50 : Colors.transparent,
-          borderRadius: BorderRadius.circular(4),
-          border: Border.all(
-              color: _isSelected ? Colors.green : Colors.blueGrey, width: .4),
-        ),
-        child:
-            Text('(${widget.optionKey}) ${widget.options[widget.optionKey]}'),
       ),
     );
   }

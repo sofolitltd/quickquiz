@@ -1,18 +1,18 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:quick_quiz/screens/question_Screen.dart';
+import 'package:quick_quiz/screens/quiz/question_Screen.dart';
 
 import 'category_add_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class QuizScreen extends StatelessWidget {
+  const QuizScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add Quiz'),
+        title: const Text('Quick Quiz'),
       ),
 
       // add category
@@ -57,8 +57,9 @@ class HomeScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) =>
-                            QuestionScreen(categoryId: docs[index].id),
+                        builder: (context) => QuestionScreen(
+                            title: docs[index].get('title'),
+                            categoryId: docs[index].id),
                       ),
                     );
                   },
@@ -73,18 +74,19 @@ class HomeScreen extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                            vertical: 20,
-                            horizontal: 16,
+                            vertical: 12,
+                            horizontal: 12,
                           ),
                           child: Row(
                             children: [
                               //image
                               Container(
-                                height: 56,
-                                width: 56,
+                                height: 72,
+                                width: 72,
                                 decoration: BoxDecoration(
-                                    color: Colors.green.shade50,
-                                    shape: BoxShape.circle),
+                                  color: Colors.blue.shade50,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
                               ),
 
                               const SizedBox(width: 16),

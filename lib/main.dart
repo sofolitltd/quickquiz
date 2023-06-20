@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import '/screens/home_screen.dart';
+import 'package:quick_quiz/screens/dashboard_screen.dart';
 
 import 'firebase_options.dart';
 
@@ -25,12 +25,13 @@ class MyApp extends StatelessWidget {
       title: 'Quick Quiz',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Colors.greenAccent.shade200),
         scaffoldBackgroundColor: Colors.grey.shade200,
-        // useMaterial3: true,
+        appBarTheme: AppBarTheme(
+          color: Colors.blueAccent.shade100,
+          centerTitle: true,
+        ),
       ),
-      home: const HomeScreen(),
+      home: const DashboardScreen(),
     );
   }
 }
