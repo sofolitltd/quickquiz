@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "783900099831",
+    "project_id": "quickquizltd",
+    "storage_bucket": "quickquizltd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:783900099831:android:9d5e154ee99ffc3abdbff2",
+        "android_client_info": {
+          "package_name": "com.sofolit.quick_quiz"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "783900099831-hmiglpkkjo9tmo51cc6e7og0lid1smdc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDpVreWiZ50Bn6uj81Dx8d6ZiJnFFVSCYo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "783900099831-hmiglpkkjo9tmo51cc6e7og0lid1smdc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
